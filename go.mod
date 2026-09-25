@@ -1,4 +1,4 @@
-module github.com/idanyas/heleket-go
+module github.com/mydearniko/heleket-go
 
 go 1.24
 

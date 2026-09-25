@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the Heleket Go SDK!
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/idanyas/heleket-go.git
+git clone https://github.com/mydearniko/heleket-go.git
 cd heleket-go
 ```
 

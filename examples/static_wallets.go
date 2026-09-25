@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/idanyas/heleket-go"
+	"github.com/mydearniko/heleket-go"
 )
 
 // RunStaticWalletExamples executes all examples related to Static Wallets.

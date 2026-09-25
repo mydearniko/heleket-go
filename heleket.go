@@ -10,7 +10,7 @@
 //
 // Basic usage:
 //
-//	import "github.com/idanyas/heleket-go"
+//	import "github.com/mydearniko/heleket-go"
 //
 //	client, err := heleket.New(
 //		&http.Client{},

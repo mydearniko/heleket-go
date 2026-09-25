@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/idanyas/heleket-go"
+	"github.com/mydearniko/heleket-go"
 )
 
 // RunOtherFeaturesExamples executes examples for miscellaneous API endpoints.

@@ -14,7 +14,7 @@ Official Go client library for the [Heleket](https://heleket.com) cryptocurrency
 ## Installation
 
 ```bash
-go get github.com/idanyas/heleket-go
+go get github.com/mydearniko/heleket-go
 ```
 
 ## Quick Start
@@ -26,7 +26,7 @@ import (
     "log"
     "net/http"
     
-    "github.com/idanyas/heleket-go"
+    "github.com/mydearniko/heleket-go"
 )
 
 func main() {
@@ -214,7 +214,7 @@ MIT License - see LICENSE file for details
 ## Support
 
 - Documentation: https://heleket.com/docs
-- Issues: https://github.com/idanyas/heleket-go/issues
+- Issues: https://github.com/mydearniko/heleket-go/issues
 - Email: support@heleket.com
 
 ## Contributing

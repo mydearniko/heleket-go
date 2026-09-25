@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/idanyas/heleket-go"
+	"github.com/mydearniko/heleket-go"
 
 	"github.com/stretchr/testify/require"
 )
