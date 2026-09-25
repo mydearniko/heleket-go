@@ -24,3 +24,18 @@ go.work
 
 output_*.md
 output.md
+
+# OS metadata files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE files
+.vscode/
+*.swp
+*~
+
+# Environment files and secrets
+.env
+.env.*
+*.pem
+*.key
