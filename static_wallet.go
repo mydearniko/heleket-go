@@ -61,6 +61,11 @@ type blockAddressRawResponse struct {
 	State  int8
 }
 
+// CreateStaticWallet creates a persistent cryptocurrency wallet address for a specific order.
+// Static wallets allow customers to make multiple payments to the same address.
+//
+// Required fields: Currency, Network, OrderId
+// Returns the StaticWalletResponse with the generated address and wallet details.
 func (c *Heleket) CreateStaticWallet(staticWalletReq *StaticWalletRequest) (*StaticWalletResponse, error) {
 	res, err := c.fetch("POST", createStaticWalletEndpoint, staticWalletReq, c.paymentApiKey)
 	if err != nil {
@@ -77,6 +82,13 @@ func (c *Heleket) CreateStaticWallet(staticWalletReq *StaticWalletRequest) (*Sta
 	return response.Result, nil
 }
 
+// GenerateStaticWalletQRCode generates a base64-encoded QR code image for a static wallet.
+// The QR code contains the wallet address and can be displayed to customers for easy scanning.
+//
+// Parameters:
+//   - walletUUID: The UUID of the static wallet
+//
+// Returns a base64-encoded PNG image string.
 func (c *Heleket) GenerateStaticWalletQRCode(walletUUID string) (string, error) {
 	payload := map[string]any{"wallet_address_uuid": walletUUID}
 	res, err := c.fetch("POST", generateStaticWalletQRCodeEndpoint, payload, c.paymentApiKey)
@@ -94,9 +106,14 @@ func (c *Heleket) GenerateStaticWalletQRCode(walletUUID string) (string, error) 
 	return response.Result.Image, nil
 }
 
+// BlockAddress blocks a static wallet address, preventing further payments.
+// You must provide either WalletUUID or OrderId in the request.
+// Optionally set IsForceRefund to automatically refund any pending balance.
+//
+// Returns the BlockAddressResponse with the wallet UUID and new status.
 func (c *Heleket) BlockAddress(blockAddressReq *BlockAddressRequest) (*BlockAddressResponse, error) {
 	if blockAddressReq.WalletUUID == "" && blockAddressReq.OrderId == "" {
-		return nil, errors.New("you should pass one of required values [WalletUUID, OrderId]")
+		return nil, errors.New("you must provide one of: [WalletUUID, OrderId]")
 	}
 
 	res, err := c.fetch("POST", blockWalletAddressEndpoint, blockAddressReq, c.paymentApiKey)

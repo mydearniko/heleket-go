@@ -29,7 +29,11 @@ func main() {
 
 	// Initialize the Heleket client
 	httpClient := &http.Client{}
-	client = heleket.New(httpClient, merchantID, paymentAPIKey, payoutAPIKey)
+	heleketClient, err := heleket.New(httpClient, merchantID, paymentAPIKey, payoutAPIKey)
+	if err != nil {
+		log.Fatalf("Failed to create Heleket client: %v", err)
+	}
+	client = heleketClient
 
 	log.Println("--- Running Payment API Examples ---")
 	RunPaymentExamples()

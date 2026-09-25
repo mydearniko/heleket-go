@@ -22,3 +22,10 @@ func TestCreateStaticWallet(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, staticWallet)
 }
+
+func TestBlockAddressValidation(t *testing.T) {
+	// Test that at least one identifier is required
+	_, err := TestHeleket.BlockAddress(&heleket.BlockAddressRequest{})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "you must provide one of")
+}

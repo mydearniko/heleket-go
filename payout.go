@@ -101,6 +101,11 @@ type payoutServiceListRawResponse struct {
 	State  int8             `json:"state"`
 }
 
+// CreatePayout initiates a cryptocurrency payout to a specified address.
+// This withdraws funds from your merchant balance and sends them to the recipient.
+//
+// Required fields: Amount, Currency, Network, OrderId, Address, IsSubtract
+// Returns the Payout object with transaction details and status.
 func (c *Heleket) CreatePayout(payoutReq *PayoutRequest) (*Payout, error) {
 	res, err := c.fetch("POST", createPayoutEndpoint, payoutReq, c.payoutApiKey)
 	if err != nil {
@@ -116,9 +121,13 @@ func (c *Heleket) CreatePayout(payoutReq *PayoutRequest) (*Payout, error) {
 	return response.Result, nil
 }
 
+// GetPayoutInfo retrieves detailed information about a specific payout.
+// You must provide either PayoutUUID or OrderId in the request.
+//
+// Returns the Payout object with current status and transaction details.
 func (c *Heleket) GetPayoutInfo(payoutInfoReq *PayoutInfoRequest) (*Payout, error) {
 	if payoutInfoReq.PayoutUUID == "" && payoutInfoReq.OrderId == "" {
-		return nil, errors.New("you should pass one of required values [PayoutUUID, OrderId]")
+		return nil, errors.New("you must provide one of: [PayoutUUID, OrderId]")
 	}
 
 	res, err := c.fetch("POST", payoutInfoEndpoint, payoutInfoReq, c.payoutApiKey)
@@ -135,8 +144,16 @@ func (c *Heleket) GetPayoutInfo(payoutInfoReq *PayoutInfoRequest) (*Payout, erro
 	return response.Result, nil
 }
 
+// GetPayoutHistory retrieves a paginated list of payout transactions within a date range.
+// Use the cursor parameter to fetch subsequent pages.
+//
+// Parameters:
+//   - dateFrom: Start of the date range
+//   - dateTo: End of the date range
+//   - cursor: Pagination cursor (empty string for first page)
+//
+// Returns PayoutHistoryResponse with payouts and pagination info.
 func (c *Heleket) GetPayoutHistory(dateFrom, dateTo time.Time, cursor string) (*PayoutHistoryResponse, error) {
-	const timeFormat = "2006-01-02 15:04:05"
 	payload := map[string]any{"date_from": dateFrom.Format(timeFormat), "date_to": dateTo.Format(timeFormat)}
 
 	endpoint := payoutHistoryEndpoint
@@ -163,6 +180,8 @@ func (c *Heleket) GetPayoutHistory(dateFrom, dateTo time.Time, cursor string) (*
 	return payoutHistory, nil
 }
 
+// GetPayoutServicesList retrieves the list of available payout services (currencies and networks).
+// This includes information about limits, commissions, and availability for each service.
 func (c *Heleket) GetPayoutServicesList() ([]*PayoutService, error) {
 	payload := make(map[string]any)
 	res, err := c.fetch("POST", payoutServicesListEndpoint, payload, c.payoutApiKey)

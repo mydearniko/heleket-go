@@ -11,12 +11,26 @@ import (
 var TestHeleket *heleket.Heleket
 
 func TestMain(m *testing.M) {
-	httpClient := http.Client{}
-	merchant := "replace with your merchant id"
-	paymentAPIKey := "replace with your payment API key"
-	payoutAPIKey := "replace with your payout API key"
+	httpClient := &http.Client{}
+	
+	// Use environment variables for credentials
+	merchant := os.Getenv("HELEKET_MERCHANT_ID")
+	paymentAPIKey := os.Getenv("HELEKET_PAYMENT_API_KEY")
+	payoutAPIKey := os.Getenv("HELEKET_PAYOUT_API_KEY")
+	
+	// Skip tests if credentials are not provided
+	if merchant == "" || paymentAPIKey == "" || payoutAPIKey == "" {
+		println("Skipping tests: HELEKET_MERCHANT_ID, HELEKET_PAYMENT_API_KEY, and HELEKET_PAYOUT_API_KEY environment variables must be set")
+		os.Exit(0)
+	}
 
-	TestHeleket = heleket.New(&httpClient, merchant, paymentAPIKey, payoutAPIKey)
+	client, err := heleket.New(httpClient, merchant, paymentAPIKey, payoutAPIKey)
+	if err != nil {
+		println("Failed to create Heleket client:", err.Error())
+		os.Exit(1)
+	}
+	
+	TestHeleket = client
 
 	os.Exit(m.Run())
 }

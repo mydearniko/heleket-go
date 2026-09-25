@@ -65,6 +65,14 @@ type TestWebhookResponse struct {
 	State  int8     `json:"state"`
 }
 
+// ParseWebhook parses and optionally verifies a webhook notification from Heleket.
+// Webhooks are sent when payment status changes or transactions complete.
+//
+// Parameters:
+//   - reqBody: Raw request body bytes from the webhook HTTP request
+//   - verifySign: Whether to verify the webhook signature (recommended: true)
+//
+// Returns the parsed Webhook object. If verifySign is true, returns an error if signature is invalid.
 func (c *Heleket) ParseWebhook(reqBody []byte, verifySign bool) (*Webhook, error) {
 	var apiKey string
 	response := &Webhook{}
@@ -93,9 +101,13 @@ func (c *Heleket) ParseWebhook(reqBody []byte, verifySign bool) (*Webhook, error
 	return response, err
 }
 
+// ResendWebhook requests that Heleket resend a webhook notification for a specific payment.
+// You must provide either PaymentUUID or OrderId in the request.
+//
+// Returns true if the webhook was successfully queued for resending.
 func (c *Heleket) ResendWebhook(resendRequest *ResendWebhookRequest) (bool, error) {
 	if resendRequest.PaymentUUID == "" && resendRequest.OrderId == "" {
-		return false, errors.New("you should pass one of required values [PaymentUUID, OrderId]")
+		return false, errors.New("you must provide one of: [PaymentUUID, OrderId]")
 	}
 
 	res, err := c.fetch("POST", resendWebhookEndpoint, resendRequest, c.paymentApiKey)
@@ -113,6 +125,10 @@ func (c *Heleket) ResendWebhook(resendRequest *ResendWebhookRequest) (bool, erro
 	return len(response.Result) == 0, nil
 }
 
+// TestPaymentWebhook sends a test webhook notification to your callback URL.
+// This is useful for testing your webhook handler implementation.
+//
+// The test webhook will contain simulated payment data with the specified currency, network, and status.
 func (c *Heleket) TestPaymentWebhook(testRequest *TestWebhookRequest) (*TestWebhookResponse, error) {
 	res, err := c.fetch("POST", testPaymentWebhookEndpoint, testRequest, c.paymentApiKey)
 	if err != nil {
@@ -129,6 +145,10 @@ func (c *Heleket) TestPaymentWebhook(testRequest *TestWebhookRequest) (*TestWebh
 	return response, nil
 }
 
+// TestPayoutWebhook sends a test payout webhook notification to your callback URL.
+// This is useful for testing your webhook handler implementation.
+//
+// The test webhook will contain simulated payout data with the specified currency, network, and status.
 func (c *Heleket) TestPayoutWebhook(testRequest *TestWebhookRequest) (*TestWebhookResponse, error) {
 	res, err := c.fetch("POST", testPayoutWebhookEndpoint, testRequest, c.payoutApiKey)
 	if err != nil {
@@ -145,6 +165,10 @@ func (c *Heleket) TestPayoutWebhook(testRequest *TestWebhookRequest) (*TestWebho
 	return response, nil
 }
 
+// TestWalletWebhook sends a test static wallet webhook notification to your callback URL.
+// This is useful for testing your webhook handler implementation.
+//
+// The test webhook will contain simulated wallet payment data with the specified currency, network, and status.
 func (c *Heleket) TestWalletWebhook(testRequest *TestWebhookRequest) (*TestWebhookResponse, error) {
 	res, err := c.fetch("POST", testWalletWebhookEndpoint, testRequest, c.paymentApiKey)
 	if err != nil {

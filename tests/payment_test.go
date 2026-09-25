@@ -49,3 +49,10 @@ func TestGetPaymentHistory(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, payments)
 }
+
+func TestGetPaymentInfoValidation(t *testing.T) {
+	// Test that at least one identifier is required
+	_, err := TestHeleket.GetPaymentInfo(&heleket.PaymentInfoRequest{})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "you must provide one of")
+}

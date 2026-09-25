@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	createInvoiceEndpoit          = "/payment"
+	createInvoiceEndpoint         = "/payment"
 	generateInvoiceQRCodeEndpoint = "/payment/qr"
 	paymentInfoEndpoint           = "/payment/info"
 	paymentHistoryEndpoint        = "/payment/list"
@@ -146,8 +146,13 @@ type paymentServiceListRawResponse struct {
 	State  int8              `json:"state"`
 }
 
+// CreateInvoice creates a new payment invoice for accepting cryptocurrency payments.
+// The invoice includes a unique payment address and URL for the customer to complete payment.
+//
+// Required fields in InvoiceRequest: Amount, Currency, OrderId
+// Returns the created Payment object with payment details and URL.
 func (c *Heleket) CreateInvoice(invoiceReq *InvoiceRequest) (*Payment, error) {
-	res, err := c.fetch("POST", createInvoiceEndpoit, invoiceReq, c.paymentApiKey)
+	res, err := c.fetch("POST", createInvoiceEndpoint, invoiceReq, c.paymentApiKey)
 	if err != nil {
 		return nil, err
 	}
@@ -162,6 +167,13 @@ func (c *Heleket) CreateInvoice(invoiceReq *InvoiceRequest) (*Payment, error) {
 	return response.Result, nil
 }
 
+// GeneratePaymentQRCode generates a base64-encoded QR code image for a payment invoice.
+// The QR code contains the payment address and can be displayed to customers for easy scanning.
+//
+// Parameters:
+//   - paymentUUID: The UUID of the payment invoice
+//
+// Returns a base64-encoded PNG image string.
 func (c *Heleket) GeneratePaymentQRCode(paymentUUID string) (string, error) {
 	payload := map[string]any{"merchant_payment_uuid": paymentUUID}
 	res, err := c.fetch("POST", generateInvoiceQRCodeEndpoint, payload, c.paymentApiKey)
@@ -180,9 +192,13 @@ func (c *Heleket) GeneratePaymentQRCode(paymentUUID string) (string, error) {
 
 }
 
+// GetPaymentInfo retrieves detailed information about a specific payment.
+// You must provide either PaymentUUID or OrderId in the request.
+//
+// Returns the Payment object with current status and transaction details.
 func (c *Heleket) GetPaymentInfo(paymentInfoReq *PaymentInfoRequest) (*Payment, error) {
 	if paymentInfoReq.PaymentUUID == "" && paymentInfoReq.OrderId == "" {
-		return nil, errors.New("you should pass one of required values [PaymentUUID, OrderId]")
+		return nil, errors.New("you must provide one of: [PaymentUUID, OrderId]")
 	}
 
 	res, err := c.fetch("POST", paymentInfoEndpoint, paymentInfoReq, c.paymentApiKey)
@@ -200,8 +216,16 @@ func (c *Heleket) GetPaymentInfo(paymentInfoReq *PaymentInfoRequest) (*Payment, 
 	return response.Result, nil
 }
 
+// GetPaymentHistory retrieves a paginated list of payment transactions within a date range.
+// Use the cursor parameter to fetch subsequent pages.
+//
+// Parameters:
+//   - dateFrom: Start of the date range
+//   - dateTo: End of the date range
+//   - cursor: Pagination cursor (empty string for first page)
+//
+// Returns PaymentHistoryResponse with payments and pagination info.
 func (c *Heleket) GetPaymentHistory(dateFrom, dateTo time.Time, cursor string) (*PaymentHistoryResponse, error) {
-	const timeFormat = "2006-01-02 15:04:05"
 	payload := map[string]any{"date_from": dateFrom.Format(timeFormat), "date_to": dateTo.Format(timeFormat)}
 
 	endpoint := paymentHistoryEndpoint
@@ -228,6 +252,8 @@ func (c *Heleket) GetPaymentHistory(dateFrom, dateTo time.Time, cursor string) (
 	return paymentHistory, nil
 }
 
+// GetPaymentServicesList retrieves the list of available payment services (currencies and networks).
+// This includes information about limits, commissions, and availability for each service.
 func (c *Heleket) GetPaymentServicesList() ([]*PaymentService, error) {
 	payload := make(map[string]any)
 	res, err := c.fetch("POST", paymentServicesListEndpoint, payload, c.paymentApiKey)

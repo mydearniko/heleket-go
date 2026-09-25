@@ -39,9 +39,16 @@ type blockedAddressRefundRawResponse struct {
 	State  int8                          `json:"state"`
 }
 
+// Refund processes a refund for a completed payment, sending funds back to a specified address.
+// You must provide either PaymentUUID or OrderId in the request.
+//
+// Parameters:
+//   - refundRequest: Contains payment identifier, refund address, and commission handling
+//
+// Returns true if the refund was successfully initiated.
 func (c *Heleket) Refund(refundRequest *RefundRequest) (bool, error) {
 	if refundRequest.PaymentUUID == "" && refundRequest.OrderId == "" {
-		return false, errors.New("you should pass one of required values [PaymentUUID, OrderId]")
+		return false, errors.New("you must provide one of: [PaymentUUID, OrderId]")
 	}
 
 	res, err := c.fetch("POST", refundEndpoint, refundRequest, c.paymentApiKey)
@@ -59,9 +66,13 @@ func (c *Heleket) Refund(refundRequest *RefundRequest) (bool, error) {
 	return len(response.Result) == 0, nil
 }
 
+// BlockedAddressRefund processes a refund from a blocked static wallet address.
+// You must provide either WalletUUID or OrderId in the request.
+//
+// Returns details about the refund including amount and commission.
 func (c *Heleket) BlockedAddressRefund(refundRequest *BlockedAddressRefundRequest) (*BlockedAddressRefundResponse, error) {
 	if refundRequest.WalletUUID == "" && refundRequest.OrderId == "" {
-		return nil, errors.New("you should pass one of required values [WalletUUID, OrderId]")
+		return nil, errors.New("you must provide one of: [WalletUUID, OrderId]")
 	}
 
 	res, err := c.fetch("POST", blockedAddressRefundEndpoint, refundRequest, c.paymentApiKey)
